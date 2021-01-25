@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>匿名チャット</title>
+        <!-- BootstrapのCSS読み込み -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <!-- jQuery読み込み -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- BootstrapのJS読み込み -->
+        <script src="js/bootstrap.min.js"></script>
+    </head>
+
+    <body>
+        <div class='fixed-top'>
+            <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgba(227, 242, 253, 0.95);">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">匿名</a>
+                    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#Navber" aria-controls="Navber" aria-expanded="false" aria-label="ナビゲーションの切替">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    
+                    <div class="collapse navbar-collapse" id="Navber">
+                        <div class="navbar-nav me-auto mb-2 mb-lg-0"></div>
+                        <form class="d-flex">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#page-bottom">ページの一番下へ</a>
+                                  </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        投稿順並べ替え
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <li><a class="dropdown-item doun" href="#">新着順</a></li>
+                                        <li><a class="dropdown-item up" href="#page-bottom">投稿順</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">つぶやく</button>
+                        </form>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+        </div>
+        <!-- Vertically centered modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">つぶやきを入力</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="message-text" class="col-form-label">Message:</label>
+                                <textarea class="form-control editor" id="message-text"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-primary send">送信</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <input type="text-box" class="editor"> -->
+        <div style="max-width: 50%; margin: 0 auto; padding-top: 60px;">
+            <h1>
+                匿名チャットへようこそ！
+            </h1>
+
+            <ul id="chat" class="list-group" >
+            </ul>
+        </div>
+
+
+            <!-- The core Firebase JS SDK is always required and must be listed first -->
+            <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+
+            <!-- TODO: Add SDKs for Firebase products that you want to use
+                https://firebase.google.com/docs/web/setup#available-libraries -->
+
+            <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+                apiKey: "AIzaSyDKE59iOg_FqSivqUiCyYgFZ3-Eu_46Ods",
+                authDomain: "chat-1a599.firebaseapp.com",
+                projectId: "chat-1a599",
+                storageBucket: "chat-1a599.appspot.com",
+                messagingSenderId: "484180140266",
+                appId: "1:484180140266:web:0204ad84e452e6dc1af793"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+
+            const db = firebase.firestore();
+
+            // chatを読み込む
+            db.collection("chat").orderBy("createdAt", "desc")
+                .onSnapshot((querySnapshot) => {
+                    const ul = document.getElementById("chat")
+                    ul.innerHTML = ""
+                    querySnapshot.forEach((doc) => {
+                        // 取得できたデータをforEach
+                        // 取得できたデータをulタグに追加
+                        const li = document.createElement("li")
+                        li.className = "list-group-item"
+                        li.innerText = doc.data().text
+                        ul.appendChild(li)
+                    })
+                })
+
+                // 並べ替え
+                const up = document.querySelector('.up')
+                const doun = document.querySelector('.doun')
+
+                up.addEventListener('click', () => {
+                    db.collection("chat").orderBy("createdAt").onSnapshot((querySnapshot) => {
+                        const ul = document.getElementById("chat")
+                        ul.innerHTML = ""
+                        querySnapshot.forEach((doc) => {
+                            // 取得できたデータをforEach
+                            // 取得できたデータをulタグに追加
+                            const li = document.createElement("li")
+                            li.className = "list-group-item"
+                            li.innerText = doc.data().text
+                            ul.appendChild(li)
+
+                            // ul[0].scrollTop = ul[0].scrollHeight;
+                        })
+                    })
+                })
+
+                doun.addEventListener('click', () => {
+                    db.collection("chat").orderBy("createdAt", "desc").onSnapshot((querySnapshot) => {
+                        const ul = document.getElementById("chat")
+                        ul.innerHTML = ""
+                        querySnapshot.forEach((doc) => {
+                            // 取得できたデータをforEach
+                            // 取得できたデータをulタグに追加
+                            const li = document.createElement("li")
+                            li.className = "list-group-item"
+                            li.innerText = doc.data().text
+                            ul.appendChild(li)
+                        })
+                    })
+                })
+
+            // chatに書き込む
+            document
+                .querySelector(".send")
+                .addEventListener("click", event => {
+                    // table -> collection
+                    // row -> doc, document
+                    const editor = document.querySelector(".editor")
+                    editor.disabled = true
+                    event.target.disabled = true
+
+                    db.collection("chat")
+                        .doc()
+                        .set({
+                            text: `${editor.value}`,
+                            createdAt: new Date()
+                        })
+                        .then(function () {
+                            // 成功したら
+                            console.log("Document successfully written!");
+                            editor.value = ""
+                        })
+                        .catch(function (error) {
+                            // 失敗したら
+                            console.error("Error writing document: ", error);
+                        })
+                        .then(() => {
+                            editor.disabled = false
+                            event.target.disabled = false
+                        })
+                })
+
+                // ページ下部へスクロール
+                $(function(){
+                    $("a[href^=#page-bottom]").click(function(){
+                        $('html, body').animate({
+                        scrollTop: $(document).height()
+                        },1);
+                        return false;
+                    });
+                });
+        </script>
+    </body>
+
+</html>
